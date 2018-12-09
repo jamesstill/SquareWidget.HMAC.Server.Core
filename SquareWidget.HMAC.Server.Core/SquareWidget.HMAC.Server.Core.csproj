@@ -13,6 +13,8 @@
     <FileVersion>2.1.0.0</FileVersion>
     <PackageProjectUrl>https://squarewidget.com/squarewidget-hmac-middleware</PackageProjectUrl>
     <PackageIconUrl>https://squarewidget.com/wp-content/uploads/2018/10/sw_logo_transparent.png</PackageIconUrl>
+    <RepositoryUrl>https://github.com/jamesstill/SquareWidget.HMAC.Server.Core</RepositoryUrl>
+    <RepositoryType>Git</RepositoryType>
   </PropertyGroup>
 
   <ItemGroup>
