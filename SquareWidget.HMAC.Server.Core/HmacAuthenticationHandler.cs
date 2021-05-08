@@ -1,13 +1,13 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using System;
 using System.Globalization;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace SquareWidget.HMAC.Server.Core
 {
@@ -46,14 +46,14 @@ namespace SquareWidget.HMAC.Server.Core
                 return await Task.Run(() => AuthenticateResult.Fail("Hash header must be in the form {clientId:clientHash}"));
             }
 
-            var clientId = parts[0];
-            var clientHash = parts[1];
+            var clientId = GetClientId(hashHeaderValue);
+            var clientHash = GetClientHash(hashHeaderValue);
             var timestampValue = Request.Headers[Options.TimestampHeaderName].ToString();
             var sharedSecret = await _sharedSecretStoreService.GetSharedSecretAsync(clientId);
 
             if (!IsValidTimestamp(timestampValue, out DateTime timestamp))
             {
-                return await Task.Run(() => AuthenticateResult.Fail("Timestamp is not ISO 8601 format yyyy-MM-ddTHH:mm:ss.fffffffZ."));
+                return await Task.Run(() => AuthenticateResult.Fail("Timestamp is not ISO 8601 format YYYY-MM-DDTHH:MM:SS."));
             }
             if (!PassesThresholdCheck(timestamp))
             {
@@ -76,7 +76,7 @@ namespace SquareWidget.HMAC.Server.Core
         /// </summary>
         /// <param name="clientIdAndHash"></param>
         /// <returns></returns>
-        private string GetClientId(string clientIdAndHash)
+        private static string GetClientId(string clientIdAndHash)
         {
             return clientIdAndHash.Substring(0, clientIdAndHash.IndexOf(':'));
         }
@@ -86,20 +86,20 @@ namespace SquareWidget.HMAC.Server.Core
         /// </summary>
         /// <param name="clientIdAndHash"></param>
         /// <returns></returns>
-        private string GetClientHash(string clientIdAndHash)
+        private static string GetClientHash(string clientIdAndHash)
         {
             return clientIdAndHash.Substring(clientIdAndHash.IndexOf(':') + 1);
         }
 
         /// <summary>
-        /// Parse a string representing a UTC timestamp of style "o" E.g.: "2013-01-12T16:11:20.0904778Z"
+        /// Parse a string representing a UTC timestamp of format specifier "s" for ISO 8601. 
         /// </summary>
-        /// <param name="timestampValue">UTC in style "o"</param>
+        /// <param name="timestampValue">UTC in style "s"</param>
         /// <param name="timestamp">DateTime</param>
         /// <returns></returns>
         private static bool IsValidTimestamp(string timestampValue, out DateTime timestamp)
         {
-            return DateTime.TryParseExact(timestampValue, "o", CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal, out timestamp);
+            return DateTime.TryParseExact(timestampValue, "s", CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal, out timestamp);
         }
 
         /// <summary>

@@ -1,24 +1,33 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Authors>James Still</Authors>
     <Company>squarewidget.com</Company>
-    <Version>2.1.0</Version>
-    <Description>Middleware HMAC-based authentication service for ASP.NET Core 2.1 Web Api</Description>
-    <PackageTags>HMAC AuthorizeAttribute Middleware</PackageTags>
-    <PackageReleaseNotes></PackageReleaseNotes>
-    <AssemblyVersion>2.1.0.0</AssemblyVersion>
-    <FileVersion>2.1.0.0</FileVersion>
+    <Version>3.0.0</Version>
+    <Description>Middleware HMAC-based authentication service for .NET 5 Web Api</Description>
+    <PackageTags>HMAC Security Middleware</PackageTags>
+    <PackageReleaseNotes>Now targets .NET 5.0. Also timestamp now uses ISO 8601 sortable format specifier "s" instead of round-trip "o" in order to faciliate API testing with javascript.</PackageReleaseNotes>
+    <AssemblyVersion>3.0.0.0</AssemblyVersion>
+    <FileVersion>3.0.0.0</FileVersion>
     <PackageProjectUrl>https://squarewidget.com/squarewidget-hmac-middleware</PackageProjectUrl>
-    <PackageIconUrl>https://squarewidget.com/wp-content/uploads/2018/10/sw_logo_transparent.png</PackageIconUrl>
+    <PackageIconUrl></PackageIconUrl>
     <RepositoryUrl>https://github.com/jamesstill/SquareWidget.HMAC.Server.Core</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
+    <PackageIcon>sw_logo_transparent.png</PackageIcon>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.App" Version="2.1.6" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication" Version="2.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="sw_logo_transparent.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>

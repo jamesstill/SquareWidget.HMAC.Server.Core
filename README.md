@@ -1,6 +1,6 @@
 # SquareWidget.HMAC.Server.Core
 
-Middleware HMAC-based authentication service for ASP.NET Core 2.1 Web Api. 
+Middleware HMAC-based authentication service for .NET 5.0
 
 ### Status
 
@@ -8,11 +8,11 @@ Middleware HMAC-based authentication service for ASP.NET Core 2.1 Web Api.
 
 ### Prerequisites
 
-ASP.NET Core 2.1
+.NET 5.0
 
 ### Getting Started
 
-See the [documentation](https://squarewidget.com/squarewidget-hmac-middleware) for usage. Download the NuGet package in your ASP.NET Core 2.1 API. Implement a shared secret store service from abstract base class SharedSecretStoreService as in this example:
+See the [documentation](https://squarewidget.com/squarewidget-hmac-middleware) for usage. Download the NuGet package in your API. Implement a shared secret store service from abstract base class SharedSecretStoreService as in this example:
 
 ```
 using SquareWidget.HMAC.Server.Core;
@@ -42,7 +42,8 @@ services
 
 ### Options
 
-By default the authentication handler looks for two request headers called "Hash" and "Timestamp" but these can be overridden if the client passes in another value in the request header:
+By default the authentication handler looks for two request headers called "Hash" and "Timestamp" but 
+these can be overridden if the client passes in another value in the request header:
 
 ```
 services
@@ -67,7 +68,8 @@ services
 
 ### Client Side
 
-Use SquareWidget.HMAC.Client.Core package. See the [documentation](https://squarewidget.com/squarewidget-hmac-middleware). Bring in the package and use HmacHttpClient:
+Use SquareWidget.HMAC.Client.Core package. See the [documentation](https://squarewidget.com/squarewidget-hmac-middleware). 
+Bring in the package and use HmacHttpClient:
 
 ```
 var baseUri = "https://localhost:12345";
@@ -87,7 +89,7 @@ using (var client = new HmacHttpClient(baseUri, credentials))
 
 ## Versioning
 
-Version 2.1.0 targeting ASP.NET Core 2.1 
+Version 3.0.0 targets.NET 5.0
 
 ## Authors
 
