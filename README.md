@@ -1,6 +1,6 @@
 # SquareWidget.HMAC.Server.Core
 
-Middleware HMAC-based authentication service for .NET 5.0
+Middleware HMAC-based authentication service for .NET Core 6.0
 
 ### Status
 
@@ -8,7 +8,7 @@ Middleware HMAC-based authentication service for .NET 5.0
 
 ### Prerequisites
 
-.NET 5.0
+.NET Core 6.0
 
 ### Getting Started
 
@@ -89,7 +89,7 @@ using (var client = new HmacHttpClient(baseUri, credentials))
 
 ## Versioning
 
-Version 3.0.0 targets.NET 5.0
+Version 6.0.0 targets.NET Core 6.0
 
 ## Authors
 

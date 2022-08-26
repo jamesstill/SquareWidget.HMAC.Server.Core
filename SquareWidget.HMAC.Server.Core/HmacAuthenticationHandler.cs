@@ -46,14 +46,14 @@ namespace SquareWidget.HMAC.Server.Core
                 return await Task.Run(() => AuthenticateResult.Fail("Hash header must be in the form {clientId:clientHash}"));
             }
 
-            var clientId = GetClientId(hashHeaderValue);
-            var clientHash = GetClientHash(hashHeaderValue);
+            var clientId = parts[0];
+            var clientHash = parts[1];
             var timestampValue = Request.Headers[Options.TimestampHeaderName].ToString();
             var sharedSecret = await _sharedSecretStoreService.GetSharedSecretAsync(clientId);
 
-            if (!IsValidTimestamp(timestampValue, out DateTime timestamp))
+            if (!IsValidTimestamp(timestampValue, out DateTimeOffset timestamp))
             {
-                return await Task.Run(() => AuthenticateResult.Fail("Timestamp is not ISO 8601 format YYYY-MM-DDTHH:MM:SS."));
+                return await Task.Run(() => AuthenticateResult.Fail("Timestamp is not a valid Unix timestamp value."));
             }
             if (!PassesThresholdCheck(timestamp))
             {
@@ -72,44 +72,34 @@ namespace SquareWidget.HMAC.Server.Core
         }
 
         /// <summary>
-        /// Return ClientId part of {ClientId:Hash} passed into request header by client
+        /// Parse a string representing a Unix timestamp (e.g., 16609335560)
         /// </summary>
-        /// <param name="clientIdAndHash"></param>
+        /// <param name="timestampValue">Unix Timestamp</param>
+        /// <param name="offset">DateTimeOffset</param>
         /// <returns></returns>
-        private static string GetClientId(string clientIdAndHash)
+        private bool IsValidTimestamp(string timestampValue, out DateTimeOffset offset)
         {
-            return clientIdAndHash.Substring(0, clientIdAndHash.IndexOf(':'));
-        }
-
-        /// <summary>
-        /// Return Hash part of {clientId:Hash} passed into request header by client
-        /// </summary>
-        /// <param name="clientIdAndHash"></param>
-        /// <returns></returns>
-        private static string GetClientHash(string clientIdAndHash)
-        {
-            return clientIdAndHash.Substring(clientIdAndHash.IndexOf(':') + 1);
-        }
-
-        /// <summary>
-        /// Parse a string representing a UTC timestamp of format specifier "s" for ISO 8601. 
-        /// </summary>
-        /// <param name="timestampValue">UTC in style "s"</param>
-        /// <param name="timestamp">DateTime</param>
-        /// <returns></returns>
-        private static bool IsValidTimestamp(string timestampValue, out DateTime timestamp)
-        {
-            return DateTime.TryParseExact(timestampValue, "s", CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal, out timestamp);
+            offset = DateTimeOffset.UtcNow;
+            try
+            {
+                long value = long.Parse(timestampValue);
+                offset = DateTimeOffset.FromUnixTimeSeconds(value);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         /// <summary>
         /// Returns true if client timestamp is within the delay value
         /// </summary>
-        /// <param name="timestamp"></param>
+        /// <param name="offset"></param>
         /// <returns></returns>
-        private bool PassesThresholdCheck(DateTime timestamp)
+        private bool PassesThresholdCheck(DateTimeOffset offset)
         {
-            var ts = DateTime.UtcNow.Subtract(timestamp);
+            var ts = DateTimeOffset.UtcNow.Subtract(offset);
             return ts.TotalSeconds <= Options.ReplayAttackDelayInSeconds;
         }
 
@@ -117,20 +107,20 @@ namespace SquareWidget.HMAC.Server.Core
         /// Returns true if the server can generate the same hash as the one the client provided.
         /// </summary>
         /// <param name="sharedSecret"></param>
-        /// <param name="timestamp"></param>
+        /// <param name="offset">Unix Timestamp</param>
         /// <param name="clientHash"></param>
         /// <returns></returns>
-        private static bool ComputeHash(string sharedSecret, DateTime timestamp, string clientHash)
+        private static bool ComputeHash(string sharedSecret, DateTimeOffset offset, string clientHash)
         {
             string hashString;
-            var ticks = timestamp.Ticks.ToString(CultureInfo.InvariantCulture);
+            var ticks = offset.ToUnixTimeSeconds().ToString();
             var key = Encoding.UTF8.GetBytes(sharedSecret);
             using (var hmac = new HMACSHA256(key))
             {
                 var hash = hmac.ComputeHash(Encoding.UTF8.GetBytes(ticks));
                 hashString = Convert.ToBase64String(hash);
             }
-            return hashString.Equals(clientHash);
+            return hashString.Equals(clientHash, StringComparison.Ordinal);
         }
     }
 }
