@@ -1,16 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Authors>James Still</Authors>
     <Company>squarewidget.com</Company>
-    <Version>6.0.0</Version>
-    <Description>Middleware HMAC-based authentication service for .NET Core 6.0</Description>
+    <Version>8.0.0</Version>
+    <Description>Middleware HMAC-based authentication service for .NET Core 8.0</Description>
     <PackageTags>HMAC Security Middleware</PackageTags>
-    <PackageReleaseNotes>Now targets .NET 6.0. Also timestamp now uses unix timestamp to faciliate API testing with javascript.</PackageReleaseNotes>
+    <PackageReleaseNotes>Now targets .NET 8.0. Also timestamp now uses unix timestamp to faciliate API testing with javascript.</PackageReleaseNotes>
     <AssemblyVersion>6.0.0.0</AssemblyVersion>
-    <FileVersion>6.0.0.0</FileVersion>
+    <FileVersion>8.0.0.0</FileVersion>
     <PackageProjectUrl>https://squarewidget.com/squarewidget-hmac-middleware</PackageProjectUrl>
     <PackageIconUrl></PackageIconUrl>
     <RepositoryUrl>https://github.com/jamesstill/SquareWidget.HMAC.Server.Core</RepositoryUrl>
@@ -20,14 +20,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Authentication" Version="2.2.0" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Include="sw_logo_transparent.png">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.8" />
   </ItemGroup>
 
 </Project>
