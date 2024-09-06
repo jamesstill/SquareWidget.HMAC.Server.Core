@@ -24,8 +24,7 @@ namespace SquareWidget.ExampleApi
     {
         public override Task<string> GetSharedSecretAsync(string clientId)
         {
-            // TODO: Use clientId to get the shared secret from 
-			// Azure Key Vault, IdentityServer4, or a database
+            // NOT FOR PRODUCTION: Hard-coded password returned; see Key Vault example below
             return Task.Run(() => "P@ssw0rd");
         }
     }
@@ -38,6 +37,54 @@ Add to ConfigureServices method in Startup.cs to register the authentication han
 services
     .AddAuthentication(HmacAuthenticationDefaults.AuthenticationScheme)
     .AddHmacAuthentication<MySharedSecretStoreService>(o => { });
+```
+
+### Azure Key Vault
+
+Suppose you wanted to implement a `SharedSecretStoreService` that fetched a secret value
+from Key Vault for the clientId. In `appsettings.json` provide the path to Key Vault:
+
+```
+"AzureKeyVaultSettings": {
+  "Uri": "https://your-path.vault.azure.net/"
+}
+```
+
+Reference the Azure SDK for .NET to get the `Azure.Security.KeyVault.Secrets` library. 
+Then implement the store service. Here is an example with IConfiguration dependency injection 
+and a simple retry policy for resiliency.
+
+```
+using Azure.Identity;
+using Azure.Security.KeyVault.Secrets;
+
+namespace SquareWidget.ExampleApi
+{
+    public class KeyVaultService(IConfiguration configuration) : SharedSecretStoreService
+    {
+        protected readonly IConfiguration _configuration = configuration;
+
+        public override Task<string> GetSharedSecretAsync(string clientId)
+        {
+            var options = new SecretClientOptions()
+            {
+                Retry =
+                {
+                    Delay = TimeSpan.FromSeconds(2),
+                    MaxDelay = TimeSpan.FromSeconds(5),
+                    MaxRetries = 3,
+                    Mode = Azure.Core.RetryMode.Exponential
+                }
+            };
+
+            var uri = new Uri(_configuration["AzureKeyVaultSettings:Uri"]);
+
+            var client = new SecretClient(uri, new DefaultAzureCredential(), options);
+            var secret = await client.GetSecretAsync(clientId);
+            return secret.Value.Value;
+        }
+    }
+}
 ```
 
 ### Options
@@ -82,14 +129,18 @@ var credentials = new ClientCredentials
 var requestUri = "api/widgets/1";
 using (var client = new HmacHttpClient(baseUri, credentials))
 {
-    var widget = client.Get<Widget>(requestUri).Result;
+    var options = new JsonSerializerOptions();
+    var response = await client.GetAsync(requestUri);
+    var content = await response.Content.ReadAsStringAsync();
+    var widget = JsonSerializer.Deserialize<Widget>(content, options);
+
     // do something with widget ID 1...
 }
 ```
 
 ## Versioning
 
-Version 6.0.0 targets.NET Core 8.0
+Version 8.1.0 targets.NET Core 8.0
 
 ## Authors
 

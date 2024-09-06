@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Primitives;
 using System;
 using System.Globalization;
 using System.Security.Claims;
@@ -19,9 +20,8 @@ namespace SquareWidget.HMAC.Server.Core
             IOptionsMonitor<HmacAuthenticationOptions> options,
             ILoggerFactory logger,
             UrlEncoder encoder,
-            ISystemClock clock,
             SharedSecretStoreService sharedSecretStoreService)
-            : base(options, logger, encoder, clock)
+            : base(options, logger, encoder)
         {
             _sharedSecretStoreService = sharedSecretStoreService;
         }
@@ -29,18 +29,17 @@ namespace SquareWidget.HMAC.Server.Core
         protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
         {
             // request header must contain Hash and TimeStamp
-            if (!Request.Headers.ContainsKey(Options.HashHeaderName))
+            if (!Request.Headers.TryGetValue(Options.HashHeaderName, out StringValues hashHeaderValue))
             {
                 return await Task.Run(() => AuthenticateResult.Fail("Missing authorization header for clientId and hash value"));
             }
 
-            if (!Request.Headers.ContainsKey(Options.TimestampHeaderName))
+            if (!Request.Headers.TryGetValue(Options.TimestampHeaderName, out StringValues timestampValue))
             {
                 return await Task.Run(() => AuthenticateResult.Fail("Missing timestamp header value."));
             }
 
-            var hashHeaderValue = Request.Headers[Options.HashHeaderName].ToString();
-            var parts = hashHeaderValue.Split(':');
+            var parts = hashHeaderValue.ToString().Split(':');
             if (parts.Length != 2)
             {
                 return await Task.Run(() => AuthenticateResult.Fail("Hash header must be in the form {clientId:clientHash}"));
@@ -48,7 +47,6 @@ namespace SquareWidget.HMAC.Server.Core
 
             var clientId = parts[0];
             var clientHash = parts[1];
-            var timestampValue = Request.Headers[Options.TimestampHeaderName].ToString();
             var sharedSecret = await _sharedSecretStoreService.GetSharedSecretAsync(clientId);
 
             if (!IsValidTimestamp(timestampValue, out DateTimeOffset timestamp))
@@ -77,7 +75,7 @@ namespace SquareWidget.HMAC.Server.Core
         /// <param name="timestampValue">Unix Timestamp</param>
         /// <param name="offset">DateTimeOffset</param>
         /// <returns></returns>
-        private bool IsValidTimestamp(string timestampValue, out DateTimeOffset offset)
+        private static bool IsValidTimestamp(string timestampValue, out DateTimeOffset offset)
         {
             offset = DateTimeOffset.UtcNow;
             try

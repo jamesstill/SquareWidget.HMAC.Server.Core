@@ -5,12 +5,12 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Authors>James Still</Authors>
     <Company>squarewidget.com</Company>
-    <Version>8.0.0</Version>
+    <Version>8.1.0</Version>
     <Description>Middleware HMAC-based authentication service for .NET Core 8.0</Description>
     <PackageTags>HMAC Security Middleware</PackageTags>
-    <PackageReleaseNotes>Now targets .NET 8.0. Also timestamp now uses unix timestamp to faciliate API testing with javascript.</PackageReleaseNotes>
-    <AssemblyVersion>6.0.0.0</AssemblyVersion>
-    <FileVersion>8.0.0.0</FileVersion>
+    <PackageReleaseNotes></PackageReleaseNotes>
+    <AssemblyVersion>8.0.0.0</AssemblyVersion>
+    <FileVersion>8.1.0.0</FileVersion>
     <PackageProjectUrl>https://squarewidget.com/squarewidget-hmac-middleware</PackageProjectUrl>
     <PackageIconUrl></PackageIconUrl>
     <RepositoryUrl>https://github.com/jamesstill/SquareWidget.HMAC.Server.Core</RepositoryUrl>
